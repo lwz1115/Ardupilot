@@ -1,0 +1,8 @@
+name,quantity_en,quantity_zh,unit,range_min,range_max,ysi_code,decimals,display_zh,display_en
+COND,Conductivity,电导率,μS/cm,0,100000,5,2,电导率,Conductivity
+PH,pH,酸碱度,,0,14,18,2,pH,pH
+DO,Dissolved Oxygen,光学溶解氧,mg/L,0,50,212,2,溶解氧,Dissolved Oxygen
+NH4,Ammonium,铵离子,mg/L,0,100,48,3,铵离子,Ammonium
+CHLOR,Chlorophyll,叶绿素,μg/L,0,500,193,2,叶绿素,Chlorophyll
+TALPC,Total Algae Phycocyanin,总藻类-藻蓝蛋白,cells/mL,0,100000,215,2,藻蓝蛋白,Phycocyanin
+TURB,Turbidity,浊度,NTU,0,4000,37,2,浊度,Turbidity

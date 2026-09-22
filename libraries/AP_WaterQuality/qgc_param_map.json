@@ -1,0 +1,123 @@
+{
+  "_comment": "AP_WaterQuality -> QGC 参数对接表。名称与飞控实际发送的 MAVLink NAMED_VALUE_FLOAT.name 完全一致，请勿改动 name 字段。",
+  "_generated_for": "ArduPilot AP_WaterQuality (YSI EXO DCP adapter)",
+  "mavlink_message": {
+    "name": "NAMED_VALUE_FLOAT",
+    "id": 251,
+    "crc_extra_handled_by_library": true,
+    "payload_bytes": 18,
+    "fields": [
+      { "name": "time_boot_ms", "type": "uint32_t", "bytes": 4, "units": "ms" },
+      { "name": "name",         "type": "char",     "bytes": 10, "note": "定长数组, 不保证以 \\0 结尾" },
+      { "name": "value",        "type": "float",    "bytes": 4,  "note": "IEEE-754 单精度; NaN 表示无有效读数" }
+    ]
+  },
+  "value_semantics": {
+    "nan_means": "该测量项本次无有效读数 (字段缺失/无法解析/传感器返回 NaN 或 inf)",
+    "nan_is_not_zero": true,
+    "note": "浊度 0 NTU、铵离子 0 mg/L 均为合法读数, 故驱动刻意不以 0 表示缺失"
+  },
+  "send_behaviour": {
+    "trigger": "每次成功解析一行传感器数据后",
+    "period_source_param": "WQ_RATE",
+    "default_rate_hz": 1.0,
+    "messages_per_sample": "每个有效测量项各一条",
+    "subject_to_stream_rate_limit": false,
+    "sent_to_all_active_channels": true,
+    "skips_high_latency_link": true,
+    "dedup_hint": "多链路同时连接时会收到重复消息, 建议按 (name, time_boot_ms) 去重"
+  },
+  "warnings": [
+    {
+      "text": "WQ: para timeout, using default param codes",
+      "severity": "MAV_SEVERITY_WARNING",
+      "severity_value": 4,
+      "meaning": "适配器未响应 para 命令, 已回退默认参数码顺序; 若探头配置不同则名称与数值会错位"
+    },
+    {
+      "text": "WQ: parameter/value count mismatch",
+      "severity": "MAV_SEVERITY_WARNING",
+      "severity_value": 4,
+      "meaning": "data 行数值个数与 para 报告的测量项个数不一致, 本次采样不完整"
+    }
+  ],
+  "parameters": [
+    {
+      "name": "COND",
+      "quantityEn": "Conductivity",
+      "quantityZh": "电导率",
+      "unit": "μS/cm",
+      "range": { "min": 0, "max": 100000 },
+      "ysiCode": 5,
+      "decimals": 2,
+      "displayZh": "电导率",
+      "displayEn": "Conductivity"
+    },
+    {
+      "name": "PH",
+      "quantityEn": "pH",
+      "quantityZh": "酸碱度",
+      "unit": "",
+      "range": { "min": 0, "max": 14 },
+      "ysiCode": 18,
+      "decimals": 2,
+      "displayZh": "pH",
+      "displayEn": "pH"
+    },
+    {
+      "name": "DO",
+      "quantityEn": "Dissolved Oxygen",
+      "quantityZh": "光学溶解氧",
+      "unit": "mg/L",
+      "range": { "min": 0, "max": 50 },
+      "ysiCode": 212,
+      "decimals": 2,
+      "displayZh": "溶解氧",
+      "displayEn": "Dissolved Oxygen"
+    },
+    {
+      "name": "NH4",
+      "quantityEn": "Ammonium",
+      "quantityZh": "铵离子",
+      "unit": "mg/L",
+      "range": { "min": 0, "max": 100 },
+      "ysiCode": 48,
+      "decimals": 3,
+      "displayZh": "铵离子",
+      "displayEn": "Ammonium"
+    },
+    {
+      "name": "CHLOR",
+      "quantityEn": "Chlorophyll",
+      "quantityZh": "叶绿素",
+      "unit": "μg/L",
+      "range": { "min": 0, "max": 500 },
+      "ysiCode": 193,
+      "decimals": 2,
+      "displayZh": "叶绿素",
+      "displayEn": "Chlorophyll"
+    },
+    {
+      "name": "TALPC",
+      "quantityEn": "Total Algae Phycocyanin",
+      "quantityZh": "总藻类-藻蓝蛋白",
+      "unit": "cells/mL",
+      "range": { "min": 0, "max": 100000 },
+      "ysiCode": 215,
+      "decimals": 2,
+      "displayZh": "藻蓝蛋白",
+      "displayEn": "Phycocyanin"
+    },
+    {
+      "name": "TURB",
+      "quantityEn": "Turbidity",
+      "quantityZh": "浊度",
+      "unit": "NTU",
+      "range": { "min": 0, "max": 4000 },
+      "ysiCode": 37,
+      "decimals": 2,
+      "displayZh": "浊度",
+      "displayEn": "Turbidity"
+    }
+  ]
+}
