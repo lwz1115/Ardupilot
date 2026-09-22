@@ -84,6 +84,9 @@ const AP_Scheduler::Task Rover::scheduler_tasks[] = {
     SCHED_TASK_CLASS(AP_Proximity,        &rover.g2.proximity,     update,         200,  200,  27),
 #endif
     SCHED_TASK_CLASS(AP_WindVane,         &rover.g2.windvane,      update,         20,  100,  30),
+#if AP_WATERQUALITY_ENABLED
+    SCHED_TASK_CLASS(AP_WaterQuality,     &rover.g2.water_quality, update,          5,  200,  32),
+#endif
     SCHED_TASK(update_wheel_encoder,   50,    200,  36),
     SCHED_TASK(update_compass,         10,    200,  39),
 #if HAL_LOGGING_ENABLED

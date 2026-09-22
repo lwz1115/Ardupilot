@@ -675,6 +675,12 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("GUID_TIMEOUT", 62, ParametersG2, guided_timeout, 3.0),
 
+#if AP_WATERQUALITY_ENABLED
+    // @Group: WQ_
+    // @Path: ../libraries/AP_WaterQuality/AP_WaterQuality.cpp
+    AP_SUBGROUPINFO(water_quality, "WQ_", 63, ParametersG2, AP_WaterQuality),
+#endif
+
     AP_GROUPEND
 };
 

@@ -140,6 +140,11 @@ void Rover::init_ardupilot()
 
     rover.g2.sailboat.init();
 
+#if AP_WATERQUALITY_ENABLED
+    // initialise water quality sensor
+    rover.g2.water_quality.init();
+#endif
+
     // boat should loiter after completing a mission to avoid drifting off
     if (is_boat()) {
         rover.g2.mis_done_behave.set_default(uint8_t(ModeAuto::DoneBehaviour::LOITER));
