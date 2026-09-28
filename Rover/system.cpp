@@ -145,6 +145,11 @@ void Rover::init_ardupilot()
     rover.g2.water_quality.init();
 #endif
 
+#if AP_WATERSAMPLER_ENABLED
+    // initialise water sampling rod
+    rover.g2.water_sampler.init();
+#endif
+
     // boat should loiter after completing a mission to avoid drifting off
     if (is_boat()) {
         rover.g2.mis_done_behave.set_default(uint8_t(ModeAuto::DoneBehaviour::LOITER));

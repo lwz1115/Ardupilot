@@ -87,6 +87,9 @@ const AP_Scheduler::Task Rover::scheduler_tasks[] = {
 #if AP_WATERQUALITY_ENABLED
     SCHED_TASK_CLASS(AP_WaterQuality,     &rover.g2.water_quality, update,          5,  200,  32),
 #endif
+#if AP_WATERSAMPLER_ENABLED
+    SCHED_TASK_CLASS(AP_WaterSampler,     &rover.g2.water_sampler, update,         10,  100,  33),
+#endif
     SCHED_TASK(update_wheel_encoder,   50,    200,  36),
     SCHED_TASK(update_compass,         10,    200,  39),
 #if HAL_LOGGING_ENABLED

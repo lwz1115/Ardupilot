@@ -13,6 +13,7 @@
 #include <AP_Stats/AP_Stats.h>
 #include "AP_Torqeedo/AP_Torqeedo.h"
 #include <AP_WaterQuality/AP_WaterQuality.h>
+#include <AP_WaterSampler/AP_WaterSampler.h>
 #include <AP_WindVane/AP_WindVane.h>
 
 #define AP_PARAM_VEHICLE_NAME rover
@@ -382,6 +383,11 @@ public:
 #if AP_WATERQUALITY_ENABLED
     // water quality sensor
     AP_WaterQuality water_quality;
+#endif
+
+#if AP_WATERSAMPLER_ENABLED
+    // water sampling rod
+    AP_WaterSampler water_sampler;
 #endif
 
 #if AP_MISSION_ENABLED

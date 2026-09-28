@@ -17,6 +17,7 @@ def build(bld):
             'AP_LTM_Telem',
             'AP_Devo_Telem',
             'AP_WaterQuality',
+            'AP_WaterSampler',
             'AP_WindVane',
             'AR_Motors',
             'AP_Torqeedo',

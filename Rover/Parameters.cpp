@@ -681,6 +681,14 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
     AP_SUBGROUPINFO(water_quality, "WQ_", 63, ParametersG2, AP_WaterQuality),
 #endif
 
+#if AP_WATERSAMPLER_ENABLED
+    // @Group: WS_
+    // @Path: ../libraries/AP_WaterSampler/AP_WaterSampler.cpp
+    // index 2 is free in this table. Do not use 1, 6, 17, 37, 39, 41 or 50 (claimed by
+    // the g2_conversions table below), 0 (AP_Param treats 0 as 63) or 54 (MODE_DOCK).
+    AP_SUBGROUPINFO(water_sampler, "WS_", 2, ParametersG2, AP_WaterSampler),
+#endif
+
     AP_GROUPEND
 };
 
