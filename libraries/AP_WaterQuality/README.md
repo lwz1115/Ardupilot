@@ -2,6 +2,25 @@
 
 ArduPilot 水质传感器驱动。
 
+本目录是 ArduPilot 的**水质传感器**驱动，不控制任何执行器（采样机构在
+`libraries/AP_WaterSampler/`，两个库完全独立，各自有自己的开关和串口）：
+
+| 文件 | 内容 |
+| --- | --- |
+| `AP_WaterQuality.{h,cpp}` | 传感器驱动：读串口、解数据行、上报地面站 |
+| `AP_WaterQuality_config.h` | 编译开关、默认串口和测量项 |
+| `README.md` | 本文件：参数表、配置步骤、测量项和故障排查 |
+
+只有 Rover 会编译这个库，注册位置：
+
+| 位置 | 内容 |
+| --- | --- |
+| `Rover/Parameters.h` | `AP_WaterQuality water_quality;` |
+| `Rover/Parameters.cpp` | `AP_SUBGROUPINFO(water_quality, "WQ_", 63, ParametersG2, AP_WaterQuality)` |
+| `Rover/system.cpp` | `rover.g2.water_quality.init();` |
+| `Rover/Rover.cpp` | `SCHED_TASK_CLASS(..., update, 5, 200, 32)`，5 Hz |
+| `Rover/wscript` | `'AP_WaterQuality',` |
+
 ## 支持的传感器
 
 ### YSI EXO DCP 适配器
