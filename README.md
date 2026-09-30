@@ -60,6 +60,6 @@
 ### 详细文档
 
 - 驱动说明 / 参数 / 故障排查：[`libraries/AP_WaterQuality/README.md`](libraries/AP_WaterQuality/README.md)
-- QGC 地面站对接手册：[`libraries/AP_WaterQuality/QGC_INTEGRATION.md`](libraries/AP_WaterQuality/QGC_INTEGRATION.md)
+- 采样机构说明 / 参数 / 接线：[`libraries/AP_WaterSampler/README.md`](libraries/AP_WaterSampler/README.md)
 
 ---
