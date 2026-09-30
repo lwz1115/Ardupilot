@@ -1,0 +1,37 @@
+# Water sampling rod, bottle selection valve and water pump.
+#
+# This board has an IOMCU, so the FMU outputs are SERVO9..SERVO13, which appear
+# as AUX1..AUX5 on the carrier board:
+#
+#   SERVO9  / AUX1 / GPIO 50  rod motor, servo PWM
+#   SERVO10 / AUX2 / GPIO 51  bottle selection relay, plain GPIO
+#   SERVO11 / AUX3 / GPIO 52  pump forward, plain GPIO
+#   SERVO12 / AUX4 / GPIO 53  pump reverse, plain GPIO
+#   SERVO13 / AUX5 / GPIO 54  pump command, unused output
+#
+# The rod and the three outputs the ground station writes to are on servo
+# channels that no board has a pin for, so they can never collide with a
+# physical output.
+#
+# The valve and the two pump lines are driven as plain GPIO, so the matching
+# outputs must be released from the PWM timer: either SERVOn_FUNCTION=-1 or the
+# channel bit in SERVO_GPIO_MASK does that. Setting the function to 0 is not
+# enough - the pin stays owned by the timer and the GPIO writes are silently
+# ignored, which leaves the pump lines sitting at 0V and the valve stuck on
+# bottle 1. A channel marked -1 (GPIO) is also refused by MAV_CMD_DO_SET_SERVO,
+# which is why the trigger and the pump command are not on those outputs.
+WS_ENABLE,1
+WS_MOTOR_CHAN,9
+WS_TRIG_CHAN,14
+WS_BOTTLE_CHAN,15
+WS_VOLUME_CHAN,16
+WS_PUMP_ENABLE,1
+WS_PUMP_FWD_PIN,52
+WS_PUMP_REV_PIN,53
+WS_PUMP_CMD_CH,13
+WS_VALVE_ENABLE,1
+WS_VALVE_PIN,51
+SERVO_GPIO_MASK,3584
+SERVO10_FUNCTION,-1
+SERVO11_FUNCTION,-1
+SERVO12_FUNCTION,-1

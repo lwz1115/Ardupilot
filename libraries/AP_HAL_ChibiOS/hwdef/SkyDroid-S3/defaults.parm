@@ -1,3 +1,43 @@
 GPS1_TYPE,2
 GPS_AUTO_CONFIG,0
 GPS_DRV_OPTIONS,4
+
+# Water sampling rod, bottle selection valve and water pump.
+#
+# This board has no IOMCU, so its 12 PWM outputs are SERVO1..SERVO12 and the
+# channel numbers differ from boards that do have one, where the FMU outputs
+# start at SERVO9. SERVO1 is the Rover steering output and SERVO3 is the
+# throttle output, so both are left alone:
+#
+#   SERVO2 / PWM2 / GPIO 51  bottle selection relay, plain GPIO
+#   SERVO4 / PWM4 / GPIO 53  pump forward, plain GPIO
+#   SERVO5 / PWM5 / GPIO 54  pump reverse, plain GPIO
+#   SERVO6 / PWM6 / GPIO 55  rod motor, servo PWM
+#
+# The rod and the three outputs the ground station writes to are on servo
+# channels the board has no pin for (it only has 12), so they can never collide
+# with a physical output.
+#
+# The valve and the two pump lines are driven as plain GPIO, so the matching
+# outputs must be released from the PWM timer: either SERVOn_FUNCTION=-1 or the
+# channel bit in SERVO_GPIO_MASK does that. Setting the function to 0 is not
+# enough - the pin stays owned by the timer and the GPIO writes are silently
+# ignored, which leaves the pump lines sitting at 0V and the valve stuck on
+# bottle 1. A channel marked -1 (GPIO) is also refused by MAV_CMD_DO_SET_SERVO,
+# which is why the trigger and the pump command are not on those outputs.
+WS_ENABLE,1
+WS_MOTOR_CHAN,6
+WS_TRIG_CHAN,14
+WS_BOTTLE_CHAN,15
+WS_VOLUME_CHAN,16
+WS_PUMP_ENABLE,1
+WS_PUMP_FWD_PIN,53
+WS_PUMP_REV_PIN,54
+WS_PUMP_CMD_CH,13
+WS_VALVE_ENABLE,1
+WS_VALVE_PIN,51
+SERVO_GPIO_MASK,26
+SERVO2_FUNCTION,-1
+SERVO4_FUNCTION,-1
+SERVO5_FUNCTION,-1
+
