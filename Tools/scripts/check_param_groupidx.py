@@ -21,6 +21,12 @@ Macro forms handled (the last one is what regex-style checks tend to miss):
 AP_Param treats index 0 as the last index when looking for duplicates, so that
 is applied here as well.
 
+It also rebuilds the full name of every parameter by following the subgroup
+macros from the root tables, and reports any name longer than AP_MAX_NAME_SIZE.
+AP_Param panics at boot ("Bad parameter table") on an over-long name, and the
+limit is measured on the assembled name, so WS_ plus VALVE_ plus ACTIVE_LOW is
+three characters over even though each piece looks reasonable on its own.
+
 Usage:
     python3 Tools/scripts/check_param_groupidx.py [dir ...]
 
@@ -38,6 +44,9 @@ TABLE_RE = re.compile(
 
 MAX_INDEX = 64      # AP_Param::_group_level_shift == 6, so index must be < 64
 ZERO_AS_LAST = 63   # AP_Param treats idx 0 as the last index for duplicate detection
+MAX_NAME = 16       # AP_MAX_NAME_SIZE: a longer assembled name panics at boot
+
+NAME_RE = re.compile(r'^"([^"]*)"$')
 
 
 def balanced_end(text, open_index):
@@ -89,12 +98,13 @@ def find_table_body(text, match):
 
 
 def check_file(path):
-    '''return (problems, listings) for one source file'''
+    '''return (problems, listings, names) for one source file'''
     with open(path, encoding='utf-8', errors='replace') as f:
         src = f.read()
 
     problems = []
     listings = {}
+    names = {}
 
     for match in TABLE_RE.finditer(src):
         table = match.group(1)
@@ -102,6 +112,8 @@ def check_file(path):
         table_line = src[:match.start()].count('\n') + 1
 
         rows = []
+        leaves = []
+        children = []
         for token in MACRO_RE.finditer(body):
             open_index = body.index('(', token.end() - 1)
             close_index = balanced_end(body, open_index)
@@ -121,7 +133,24 @@ def check_file(path):
             line = table_line + body[:token.start()].count('\n')
             rows.append((index, label, macro, line))
 
+            # collect names so that the full name of every parameter can be
+            # reassembled once the whole tree has been read
+            if macro.startswith('AP_GROUPINFO'):
+                quoted = NAME_RE.match(args[0])
+                if quoted:
+                    leaves.append((quoted.group(1), line))
+            elif len(args) >= 5:
+                # AP_SUBGROUPINFO / AP_SUBGROUPPTR:
+                #   (element, "PREFIX_", idx, ParentTable, ChildType)
+                quoted = NAME_RE.match(args[1])
+                if quoted:
+                    children.append((quoted.group(1), args[4].strip(), line))
+
         listings[table] = rows
+        entry = names.setdefault(table, {'leaves': [], 'children': []})
+        entry['leaves'].extend((name, path, line) for name, line in leaves)
+        entry['children'].extend((prefix, child, path, line)
+                                 for prefix, child, line in children)
 
         # duplicate detection, with 0 counting as the last index
         by_effective = {}
@@ -143,7 +172,45 @@ def check_file(path):
                     '%s::%s: index %d >= %d (%s %s) at line %d'
                     % (path, table, index, MAX_INDEX, macro, label, line))
 
-    return problems, listings
+    return problems, listings, names
+
+
+def check_full_names(names):
+    '''rebuild every parameter's full name and report the over-long ones'''
+    parents = set()
+    orphans = set()
+    for entry in names.values():
+        for _, child, _, _ in entry['children']:
+            parents.add(child)
+            if child not in names:
+                # the table lives outside the scanned tree, which happens on a
+                # partial run. Start from it anyway so as much as possible is
+                # still checked, even though its prefix will be incomplete
+                orphans.add(child)
+
+    problems = []
+    seen = set()
+
+    def walk(table, prefix):
+        if (table, prefix) in seen:
+            return
+        seen.add((table, prefix))
+        entry = names.get(table)
+        if entry is None:
+            return
+        for name, path, line in entry['leaves']:
+            full = prefix + name
+            if len(full) > MAX_NAME:
+                problems.append(
+                    '%s:%d: parameter name "%s" is %d characters, the limit is %d'
+                    % (path, line, full, len(full), MAX_NAME))
+        for child_prefix, child, _, _ in entry['children']:
+            walk(child, prefix + child_prefix)
+
+    for table in sorted((set(names) - parents) | orphans):
+        walk(table, '')
+
+    return problems
 
 
 def main():
@@ -159,13 +226,23 @@ def main():
 
     problem_count = 0
     listings = {}
+    all_names = {}
     for path in sources:
-        problems, found = check_file(path)
+        problems, found, names = check_file(path)
         for problem in problems:
             print(problem)
             problem_count += 1
         for table, rows in found.items():
             listings['%s::%s' % (path, table)] = rows
+        for table, entry in names.items():
+            merged = all_names.setdefault(table, {'leaves': [], 'children': []})
+            merged['leaves'].extend(entry['leaves'])
+            merged['children'].extend(entry['children'])
+
+    name_problems = check_full_names(all_names)
+    for problem in name_problems:
+        print(problem)
+    problem_count += len(name_problems)
 
     # print the ParametersG2 table in full - it is the one people add to
     for key in sorted(listings):
